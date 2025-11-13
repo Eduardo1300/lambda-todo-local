@@ -1,39 +1,38 @@
-import { v4 as uuidv4 } from "uuid";
-import { ToDoItem } from "./types";
-
-const fakeDatabase: ToDoItem[] = [];
+import { getAllTodos, createTodo, validateTitulo } from "./service";
+import {
+  successResponse,
+  badRequest,
+  methodNotAllowed,
+  serverError,
+} from "./utils/response";
 
 export const handler = async (event: any) => {
   const method = event.httpMethod;
 
   try {
     if (method === "GET") {
-      return { statusCode: 200, body: JSON.stringify(fakeDatabase) };
+      const todos = getAllTodos();
+      return successResponse(todos);
     }
 
     if (method === "POST") {
-      const body = JSON.parse(event.body);
+      const body = JSON.parse(event.body || "{}");
+      const { titulo } = body;
 
-      if (!body.titulo || typeof body.titulo !== "string") {
-        return {
-          statusCode: 400,
-          body: JSON.stringify({ error: "El campo 'titulo' es obligatorio." }),
-        };
+      // Validar título
+      const validationError = validateTitulo(titulo);
+      if (validationError) {
+        return badRequest(validationError);
       }
 
-      const newItem: ToDoItem = {
-        id: uuidv4(),
-        titulo: body.titulo,
-        completada: false,
-      };
-
-      fakeDatabase.push(newItem);
-
-      return { statusCode: 200, body: JSON.stringify(newItem) };
+      // Crear nueva tarea
+      const newTodo = createTodo(titulo);
+      return successResponse(newTodo);
     }
 
-    return { statusCode: 405, body: "Método no permitido" };
+    return methodNotAllowed();
   } catch (error: any) {
-    return { statusCode: 500, body: JSON.stringify({ error: error.message }) };
+    console.error("Error en handler:", error);
+    return serverError(error.message || "Error interno del servidor");
   }
 };
