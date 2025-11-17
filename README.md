@@ -1,173 +1,95 @@
-# Lambda ToDo API (Simulación Local)
 
-Este proyecto es una **simulación local** de un endpoint AWS Lambda para gestionar tareas (to-do items). Permite crear y consultar tareas usando TypeScript, sin necesidad de AWS.
+# 📘 Lambda ToDo API (Simulación Local)
 
-## 🚀 Despliegue en vivo
-
-El proyecto está desplegado en Render y accesible públicamente:
-
-- **URL Base**: https://lambda-todo-local.onrender.com/
-- **Endpoints**: 
-  - `GET /todos` - Obtener todas las tareas
-  - `POST /todos` - Crear una nueva tarea
+Este proyecto simula un endpoint estilo AWS Lambda usando **TypeScript + Node.js**, permitiendo crear y consultar tareas (to-do items) sin depender de AWS. Incluye validación, arquitectura modular y tests unitarios.
 
 ---
 
-- **GET**: Devuelve todas las tareas almacenadas en memoria.
-- **POST**: Crea una nueva tarea. Requiere enviar el campo `titulo`.
-- **IDs únicos**: Cada tarea recibe un id generado automáticamente con `uuid`.
-- **Persistencia temporal**: Las tareas se guardan en memoria mientras la app está corriendo (simulación de base de datos).
-- **Validación robusta**: Validación de título con longitud mínima (3) y máxima (100) caracteres.
-- **Manejo de errores**: Códigos HTTP correctos y mensajes de error descriptivos.
-- **Tests unitarios**: Suite de 10 tests con Vitest para garantizar calidad.
+## 🚀 Demo en Render
 
-## Tecnologías usadas
+- **Base URL:** [https://lambda-todo-local.onrender.com/](https://lambda-todo-local.onrender.com/)
 
-- TypeScript
-- Node.js
-- Express.js (servidor HTTP)
-- [uuid](https://www.npmjs.com/package/uuid) (para generar IDs)
-- [Vitest](https://vitest.dev/) (testing)
-- Estructura modular profesional para simular Lambda de AWS
+### Endpoints
 
-## Estructura del proyecto
+- `GET /todos` – Lista todas las tareas
+- `POST /todos` – Crea una nueva tarea (campo requerido: `titulo`)
+
+---
+
+## 🧠 Características principales
+
+- Almacenamiento temporal en memoria (simulación de Lambda stateless)
+- IDs únicos generados con `uuid`
+- Validación completa del campo `titulo` (mínimo 3, máximo 100)
+- Manejo correcto de errores y códigos HTTP
+- 10 tests unitarios con Vitest
+- Arquitectura modular que replica la estructura de una Lambda real
+
+---
+
+## 📁 Estructura del proyecto
 
 ```text
 lambda-todo/
 ├─ src/
-│   ├─ handler.ts           # Función simulada tipo Lambda
-│   ├─ service.ts           # Lógica de negocio (CRUD de tareas)
-│   ├─ types.ts             # Tipos TypeScript
-│   ├─ handler.test.ts      # Tests unitarios con Vitest
-│   ├─ server.ts            # Servidor Express
-│   ├─ local-test.ts        # Simulación local de GET/POST
+│   ├─ handler.ts        # Lógica principal tipo Lambda
+│   ├─ service.ts        # CRUD de tareas
+│   ├─ types.ts          # Tipos TS
+│   ├─ handler.test.ts   # Tests con Vitest
+│   ├─ server.ts         # Servidor Express
 │   └─ utils/
-│       └─ response.ts      # Utilidades de respuesta estándar Lambda
-├─ package.json             # Dependencias y scripts
-├─ tsconfig.json            # Configuración de TypeScript
-└─ README.md                # Este archivo
-```
-
-## Instalación y ejecución
-
-1. **Clona el repositorio:**
-	```bash
-	git clone <url-del-repo>
-	cd lambda-todo
-	```
-
-2. **Instala dependencias:**
-	```bash
-	npm install
-	```
-
-3. **Compila TypeScript a JavaScript:**
-	```bash
-	npm run build
-	```
-
-4. **Ejecuta los tests:**
-	```bash
-	npm test
-	```
-
-5. **Ejecuta el servidor local:**
-	```bash
-	npm start
-	```
-
-   Deberías ver en consola:
-	```text
-	Servidor escuchando en puerto 3000
-	```
-
----
-
-## ¿Por qué el proyecto no tiene datos persistentes?
-
-Este proyecto **almacena datos en memoria** (variable `fakeDatabase` en `service.ts`), lo que significa:
-
-✅ **Mientras la app está corriendo**: Los datos se guardan y puedes consultarlos.  
-❌ **Cuando la app se reinicia**: Los datos se pierden.
-
-### Razones de este diseño:
-
-1. **Simulación realista de Lambda**: AWS Lambda es *stateless*. No guarda estado entre ejecuciones. Este proyecto simula ese comportamiento.
-2. **Sin base de datos externa**: Para mantener simplicidad. Una app real usaría DynamoDB, PostgreSQL o MongoDB.
-3. **Render reinicia periódicamente**: Render puede reiniciar tu app cuando:
-   - No recibe peticiones por mucho tiempo (free tier)
-   - Hay actualizaciones de sistema
-   - Se alcanza límite de memoria
-
-### Si quieres persistencia real:
-
-Conecta una base de datos (ej. MongoDB Atlas gratuito):
-```typescript
-// En service.ts, en lugar de fakeDatabase
-import mongoose from 'mongoose';
-const Todo = mongoose.model('Todo', todoSchema);
-export const getAllTodos = async () => await Todo.find();
+│       └─ response.ts   # Respuestas estándar
 ```
 
 ---
 
-## 📖 Cómo funcionan los endpoints
+## ⚙️ Instalación y ejecución local
 
-## 📋 Pruebas locales con curl
+```bash
+git clone <url-del-repo>
+cd lambda-todo
+npm install
+npm run build
+npm start
+```
 
-Si ejecutas `npm start` en tu máquina local, el servidor estará en `http://localhost:3000`:
+Servidor local: [http://localhost:3000](http://localhost:3000)
 
-**GET local**:
+---
+
+## 🧪 Tests
+
+```bash
+npm test
+```
+
+---
+
+## 🔍 Ejemplos
+
+### GET
 ```bash
 curl http://localhost:3000/todos
 ```
 
-**POST local**:
+### POST
 ```bash
 curl -X POST http://localhost:3000/todos \
   -H "Content-Type: application/json" \
-  -d '{"titulo": "Mi tarea local"}'
+  -d '{"titulo": "Nueva tarea"}'
 ```
 
 ---
 
-## ✅ Mejoras implementadas
+## 📌 Notas
 
-### ✅ Validación robusta del POST
-- ✓ Título debe ser string (no números ni otros tipos)
-- ✓ Longitud mínima: 3 caracteres
-- ✓ Longitud máxima: 100 caracteres
-- ✓ No permite títulos vacíos o solo espacios en blanco
-- ✓ Trim automático de espacios
-- ✓ Mensajes de error descriptivos para cada validación
+- Los datos se almacenan en memoria (comportamiento similar a una Lambda real).
+- Para persistencia, podría integrarse DynamoDB o MongoDB.
 
-### ✅ Arquitectura profesional (similar a AWS)
-- ✓ **handler.ts**: Lógica principal tipo Lambda
-- ✓ **service.ts**: Lógica de negocio separada (CRUD)
-- ✓ **utils/response.ts**: Helpers para respuestas HTTP estándar
-- ✓ **server.ts**: Servidor Express que expone la API
-- ✓ Separación clara de responsabilidades
-- ✓ Fácil de escalar y mantener
+---
 
-### ✅ Testing completo (QA como profesional)
-- ✓ 10 tests unitarios con Vitest
-- ✓ Cubre validación, errores y casos de éxito
-- ✓ Ejecuta con `npm test`
-- ✓ Demuestra calidad de código
+## 👤 Autor
 
-### ✅ Despliegue en producción
-- ✓ API desplegada en Render
-- ✓ Accesible públicamente
-- ✓ CI/CD automático desde GitHub
+Proyecto desarrollado como parte de la Prueba Técnica – NXT Abogados (Parte 2)
 
-## Notas
-
-- Este proyecto simula una función Lambda de AWS con arquitectura profesional.
-- Para producción real, se podría desplegar en AWS Lambda y conectar con DynamoDB.
-- Cumple con estándares de calidad: validación, tests, estructura modular y códigos HTTP correctos.
-
-## Créditos
-
-📅 Proyecto desarrollado como parte de la Prueba Técnica - NXT Abogados (Parte 2)
-👨‍💻 Autor: Christopher Eduardo Valdivia Baca
-📍 Lima, Perú
+**Christopher Eduardo Valdivia Baca – Lima, Perú**
