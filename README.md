@@ -74,9 +74,12 @@ curl http://localhost:3000/todos
 
 ### POST
 ```bash
-curl -X POST http://localhost:3000/todos \
+curl -X POST https://lambda-todo-local.onrender.com/todos \
   -H "Content-Type: application/json" \
-  -d '{"titulo": "Nueva tarea"}'
+  -d '{"titulo": "Mi nueva tarea"}'
+
+{"id":"7f91a00a-0c6a-43cb-9ebc-10cfed60a57f","titulo":"Mi nueva tarea","completada":false}
+
 ```
 
 ---
